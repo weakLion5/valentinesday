@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>For You ❤️</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&family=Great+Vibes&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #ffe4e9; /* Pink Soft Banget */
+            --accent: #ff5c8d;
+            --text-main: #5c2a3b;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            cursor: default;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            font-family: 'Poppins', sans-serif;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: var(--text-main);
+        }
+
+        /* --- LAPISAN KEGELAPAN (REALISTIC LIGHTING) --- */
+        #darkness {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 999;
+            pointer-events: none; /* Supaya bisa klik tombol di bawahnya */
+            /* Gradient ini menciptakan efek senter yang halus */
+            background: radial-gradient(
+                circle at var(--x, 50%) var(--y, 50%), 
+                transparent 50px, 
+                rgba(0,0,0,0.98) 250px
+            );
+            transition: background 0.2s ease-out; /* Smooth movement */
+        }
+
+        /* Kelas saat lampu dinyalakan */
+        body.lights-on #darkness {
+            /* Transisi background menjadi transparan total dengan efek membesar */
+            animation: turnOnLight 1.5s forwards ease-in-out;
+            background: radial-gradient(
+                circle at 50% 50%, 
+                transparent 0%, 
+                rgba(0,0,0,0) 100%
+            );
+        }
+
+        @keyframes turnOnLight {
+            0% { background: radial-gradient(circle at var(--x) var(--y), transparent 50px, rgba(0,0,0,0.98) 250px); }
+            20% { background: radial-gradient(circle at 50% 50%, transparent 100px, rgba(0,0,0,0.95) 400px); opacity: 0.8; }
+            40% { opacity: 0.4; } /* Flicker effect / Berkedip */
+            50% { opacity: 0.9; }
+            100% { opacity: 0; pointer-events: none; display: none;}
+        }
+
+        /* --- TOMBOL SAKLAR --- */
+        .switch-container {
+            position: absolute;
+            z-index: 1000;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+        }
+
+        .switch-btn {
+            background: #fff;
+            color: #333;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.2rem;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 0 15px rgba(255,255,255,0.5);
+            transition: transform 0.2s, box-shadow 0.3s;
+            pointer-events: auto; /* Penting agar bisa diklik */
+        }
+
+        .switch-btn:hover {
+            transform: translate(-50%, -50%) scale(1.05);
+            box-shadow: 0 0 25px rgba(255,255,255,0.8);
+        }
+
+        /* --- KONTEN --- */
+        .container {
+            position: relative;
+            z-index: 10;
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        .hidden {
+            display: none;
+            opacity: 0;
+        }
+
+        .fade-in {
+            animation: fadeIn 1.5s forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h2.message-title {
+            font-family: 'Great Vibes', cursive;
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            color: var(--accent);
+        }
+
+        .letter-btn {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-size: 1rem;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(255, 92, 141, 0.4);
+            transition: transform 0.2s;
+        }
+        
+        .letter-btn:hover { transform: scale(1.05); }
+
+        /* Proposal Section */
+        .gif-container img {
+            width: 180px;
+            border-radius: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .question {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 30px;
+        }
+
+        .buttons {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            position: relative;
+        }
+
+        .btn {
+            padding: 10px 30px;
+            border-radius: 50px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-yes {
+            background: var(--accent);
+            color: white;
+            z-index: 2;
+        }
+
+        .btn-no {
+            background: white;
+            color: var(--text-main);
+            border: 2px solid var(--bg-color);
+        }
+
+        /* Success Section */
+        .success-card {
+            background: rgba(255,255,255,0.7);
+            padding: 20px;
+            border-radius: 20px;
+            margin-top: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        }
+
+    </style>
+</head>
+<body>
+
+    <!-- Audio -->
+    <audio id="bgMusic" loop>
+        <!-- Ganti 'lagu_romantis.mp3' dengan file kamu -->
+        <source src="Sparks - Coldplay.mp3" type="audio/mpeg">
+    </audio>
+    <!-- Efek Suara Klik Saklar (Opsional) -->
+    <audio id="clickSound">
+        <source src="https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3" type="audio/mpeg">
+    </audio>
+
+    <!-- LAYER KEGELAPAN -->
+    <div id="darkness"></div>
+
+    <!-- TOMBOL SAKLAR -->
+    <div class="switch-container" id="switchContainer">
+        <button class="switch-btn" id="switchBtn">💡 Turn On Light</button>
+    </div>
+
+    <!-- KONTEN UTAMA -->
+    <div class="container">
+        
+        <!-- BAGIAN 1: PESAN INTRO -->
+        <div id="section1" class="hidden">
+            <h2 class="message-title">Aku punya pesan untukmu...</h2>
+            <button class="letter-btn" id="openBtn">Klik untuk membuka 💌</button>
+        </div>
+
+        <!-- BAGIAN 2: PERTANYAAN -->
+        <div id="section2" class="hidden">
+            <div class="gif-container">
+                <!-- GIF Awal (Senyum/Nunggu) -->
+                <img id="reactionGif" src="MainGIF.webp" alt="Waiting">
+            </div>
+            <h1 class="question">Will You Be My Valentine?</h1>
+            <div class="buttons">
+                <button class="btn btn-yes" id="yesBtn">Yes</button>
+                <button class="btn btn-no" id="noBtn">No</button>
+            </div>
+        </div>
+
+        <!-- BAGIAN 3: SUKSES -->
+        <div id="section3" class="hidden">
+            <div class="gif-container">
+                <!-- GIF Happy/Peluk -->
+                <img src="Success.webp" alt="Happy">
+            </div>
+            <div class="success-card fade-in">
+                <h2 style="font-family:'Great Vibes'; color: var(--accent);">Yeay! Akhirnya! ❤️</h2>
+                <p style="font-size: 0.95rem; margin-top:10px;">
+                    Makasih udah pilih "Yes" (walaupun tombol "No"-nya emang gak bisa dipencet sih 😜).
+                    <br><br>
+                    Mulai hari ini, stok coklat dan kasih sayang buat kamu udah aku siapin. 
+                    <i>Happy Valentine's Day!</i> 🍫🌹
+                </p>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        const darkness = document.getElementById('darkness');
+        const switchBtn = document.getElementById('switchBtn');
+        const switchContainer = document.getElementById('switchContainer');
+        const clickSound = document.getElementById('clickSound');
+        const bgMusic = document.getElementById('bgMusic');
+        
+        const section1 = document.getElementById('section1');
+        const section2 = document.getElementById('section2');
+        const section3 = document.getElementById('section3');
+        const openBtn = document.getElementById('openBtn');
+        
+        const yesBtn = document.getElementById('yesBtn');
+        const noBtn = document.getElementById('noBtn');
+        const reactionGif = document.getElementById('reactionGif');
+
+        let isLightsOn = false;
+
+        // 1. EFEK SENTER (REALISTIC FLASHLIGHT)
+        // Mengikuti pergerakan mouse sebelum lampu dinyalakan
+        document.addEventListener('mousemove', (e) => {
+            if (!isLightsOn) {
+                const x = e.clientX;
+                const y = e.clientY;
+                // Update posisi gradient di CSS
+                darkness.style.setProperty('--x', x + 'px');
+                darkness.style.setProperty('--y', y + 'px');
+            }
+        });
+
+        // Juga support sentuhan layar (Mobile)
+        document.addEventListener('touchmove', (e) => {
+            if (!isLightsOn) {
+                const x = e.touches[0].clientX;
+                const y = e.touches[0].clientY;
+                darkness.style.setProperty('--x', x + 'px');
+                darkness.style.setProperty('--y', y + 'px');
+            }
+        });
+
+        // 2. NYALAKAN LAMPU
+        switchBtn.addEventListener('click', () => {
+            isLightsOn = true;
+            clickSound.play().catch(e => console.log("Sound blocked")); // Efek suara klik
+            
+            // Tambahkan kelas animasi ke body
+            document.body.classList.add('lights-on');
+            
+            // Sembunyikan tombol saklar
+            switchContainer.style.display = 'none';
+
+            // Munculkan pesan intro setelah animasi lampu selesai
+            setTimeout(() => {
+                section1.classList.remove('hidden');
+                section1.classList.add('fade-in');
+            }, 1000);
+        });
+
+        // 3. BUKA PESAN (MULAI MUSIK)
+        openBtn.addEventListener('click', () => {
+            bgMusic.play().then(() => {
+                bgMusic.volume = 0.6;
+            }).catch(e => console.log("Music blocked"));
+
+            section1.classList.add('hidden');
+            section2.classList.remove('hidden');
+            section2.classList.add('fade-in');
+        });
+
+        // 4. INTERAKSI TOMBOL
+        let scale = 1;
+        noBtn.addEventListener('click', () => {
+            // Ganti GIF jadi nangis
+            reactionGif.src = "Cry1.webp"; 
+            
+            // Perbesar tombol YES
+            scale += 0.3;
+            yesBtn.style.transform = `scale(${scale})`;
+
+            // Animasi getar tombol No (efek salah)
+            noBtn.animate([
+                { transform: 'translateX(0)' },
+                { transform: 'translateX(10px)' },
+                { transform: 'translateX(-10px)' },
+                { transform: 'translateX(0)' }
+            ], { duration: 300 });
+
+            // Pindahkan tombol No secara acak (opsional, biar gemes)
+            // const x = Math.random() * 100 - 50;
+            // const y = Math.random() * 100 - 50;
+            // noBtn.style.transform = `translate(${x}px, ${y}px)`;
+        });
+
+        yesBtn.addEventListener('click', () => {
+            section2.classList.add('hidden');
+            section3.classList.remove('hidden');
+            section3.classList.add('fade-in');
+            
+            // Efek kembang api sederhana (Emojis)
+            createFireworks();
+        });
+
+        function createFireworks() {
+            const container = document.body;
+            const emojis = ['❤️', '💖', '🌹', '🧸', '🍫'];
+            
+            setInterval(() => {
+                const el = document.createElement('div');
+                el.innerText = emojis[Math.floor(Math.random() * emojis.length)];
+                el.style.position = 'fixed';
+                el.style.left = Math.random() * 100 + 'vw';
+                el.style.top = '110vh';
+                el.style.fontSize = (Math.random() * 20 + 20) + 'px';
+                el.style.transition = 'all 4s ease-out';
+                el.style.zIndex = '0';
+                
+                container.appendChild(el);
+
+                setTimeout(() => {
+                    el.style.top = '-10vh';
+                    el.style.opacity = '0';
+                }, 100);
+
+                setTimeout(() => {
+                    el.remove();
+                }, 4000);
+            }, 300);
+        }
+
+    </script>
+</body>
+</html>
